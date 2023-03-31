@@ -6,7 +6,8 @@
   "main": "./lib/index.js",
   "exports": {
     ".": "./lib/index.js",
-    "./userscript": "./lib/userscript.js"
+    "./userscript": "./lib/userscript.js",
+    "./local-storage": "./lib/local-storage.js"
   },
   "scripts": {
     "p": "prettier --write .",
@@ -46,7 +47,10 @@
     "globals": [
       "GM_getValue",
       "GM_setValue",
+      "GM_deleteValue",
+      "GM_listValues",
       "GM_addValueChangeListener",
+      "GM_removeValueChangeListener",
       "localStorage",
       "document"
     ],

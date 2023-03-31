@@ -1,6 +1,8 @@
 # browser-extension-storage
 
-Storage wrapper for browser extensions and userscripts
+Storage wrapper for browser extensions and userscripts.
+
+Made for [browser-extension-starter](https://github.com/PipecraftNet/browser-extension-starter).
 
 ## Usage
 
@@ -10,6 +12,42 @@ npm i browser-extension-storage
 pnpm add browser-extension-storage
 # or
 yarn add browser-extension-storage
+```
+
+### Chrome, Firefox extensions
+
+```js
+import {
+  getValue,
+  setValue,
+  deleteValue,
+  listValues,
+  addValueChangeListener,
+} from "browser-extension-storage"
+```
+
+### Userscripts
+
+```js
+import {
+  getValue,
+  setValue,
+  deleteValue,
+  listValues,
+  addValueChangeListener,
+} from "browser-extension-storage/userscript"
+```
+
+### localStorage
+
+```js
+import {
+  getValue,
+  setValue,
+  deleteValue,
+  listValues,
+  addValueChangeListener,
+} from "browser-extension-storage/local-storage"
 ```
 
 ## License
