@@ -2,7 +2,7 @@
 
 Storage wrapper for browser extensions and userscripts.
 
-Made for [browser-extension-starter](https://github.com/PipecraftNet/browser-extension-starter).
+Made for [browser-extension-starter](https://github.com/utags/browser-extension-starter).
 
 ## Usage
 
