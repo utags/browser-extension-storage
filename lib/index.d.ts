@@ -1,10 +1,10 @@
-export async function getValue(key: string): any
+export async function getValue(key: string): Promise<any>
 
-export async function setValue(key: string, value: any): any
+export async function setValue(key: string, value: any): Promise<void>
 
-export async function deleteValue(key: string): void
+export async function deleteValue(key: string): Promise<void>
 
-export async function listValues(): string[]
+export async function listValues(): Promise<string[]>
 
 export function addValueChangeListener(
   key: string,
