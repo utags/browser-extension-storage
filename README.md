@@ -1,6 +1,6 @@
 # browser-extension-storage
 
-Storage wrapper for browser extensions and userscripts.
+Storage API wrapper for browser extensions, userscripts and bookmarklets.
 
 Made for [browser-extension-starter](https://github.com/utags/browser-extension-starter).
 

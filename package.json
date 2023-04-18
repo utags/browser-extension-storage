@@ -1,7 +1,7 @@
 {
   "name": "browser-extension-storage",
-  "version": "0.0.6",
-  "description": "Storage wrapper for browser extensions and userscripts",
+  "version": "0.0.7",
+  "description": "Storage API wrapper for browser extensions, userscripts and bookmarklets",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
