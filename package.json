@@ -45,6 +45,7 @@
     "space": 2,
     "prettier": true,
     "globals": [
+      "GM",
       "GM_getValue",
       "GM_setValue",
       "GM_deleteValue",
