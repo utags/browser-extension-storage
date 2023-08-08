@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PipecraftNet/browser-extension-storage.git"
+    "url": "git+https://github.com/utags/browser-extension-storage.git"
   },
   "keywords": [
     "extensions",
@@ -26,9 +26,9 @@
   "author": "Pipecraft",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PipecraftNet/browser-extension-storage/issues"
+    "url": "https://github.com/utags/browser-extension-storage/issues"
   },
-  "homepage": "https://github.com/PipecraftNet/browser-extension-storage#readme",
+  "homepage": "https://github.com/utags/browser-extension-storage#readme",
   "devDependencies": {
     "prettier": "^2.8.7",
     "xo": "^0.53.1"
