@@ -4,10 +4,10 @@ import {
   deleteValue,
   listValues,
   addValueChangeListener,
-} from "../lib/index.js"
+} from '../lib/index.js'
 
 console.log(
-  "test",
+  'test',
   getValue,
   setValue,
   deleteValue,

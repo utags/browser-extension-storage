@@ -1,6 +1,13 @@
-declare module "css:*" {
+declare module 'css:*' {
   const cssText: string
   export default cssText
+}
+
+declare const browser: typeof chrome
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare const GM_info: {
+  scriptHandler: string
 }
 
 declare function GM_addValueChangeListener(
@@ -26,11 +33,11 @@ declare const GM: {
   ): Promise<number>
   removeValueChangeListener(id: number): Promise<void>
   xmlHttpRequest(options: {
-    method: "GET" | "POST" | "PUT" | "DELETE"
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE'
     url: string
     headers?: Record<string, string>
     data?: string | FormData | ArrayBuffer
-    responseType?: "text" | "json" | "blob"
+    responseType?: 'text' | 'json' | 'blob'
     onload?: (response: {
       status: number
       responseText?: string
@@ -53,11 +60,11 @@ declare function GM_openInTab(
 declare function GM_removeValueChangeListener(id: number): void
 
 declare function GM_xmlhttpRequest(options: {
-  method: "GET" | "POST" | "PUT" | "DELETE"
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE'
   url: string
   headers?: Record<string, string>
   data?: string | FormData | ArrayBuffer
-  responseType?: "text" | "json" | "blob"
+  responseType?: 'text' | 'json' | 'blob'
   onload?: (response: {
     status: number
     responseText?: string

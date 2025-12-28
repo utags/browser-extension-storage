@@ -23,7 +23,7 @@ import {
   deleteValue,
   listValues,
   addValueChangeListener,
-} from "browser-extension-storage"
+} from 'browser-extension-storage'
 ```
 
 ### Userscripts
@@ -35,7 +35,7 @@ import {
   deleteValue,
   listValues,
   addValueChangeListener,
-} from "browser-extension-storage/userscript"
+} from 'browser-extension-storage/userscript'
 ```
 
 ### localStorage
@@ -47,7 +47,7 @@ import {
   deleteValue,
   listValues,
   addValueChangeListener,
-} from "browser-extension-storage/local-storage"
+} from 'browser-extension-storage/local-storage'
 ```
 
 ## License

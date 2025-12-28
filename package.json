@@ -1,18 +1,24 @@
 {
   "name": "browser-extension-storage",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Storage API wrapper for browser extensions, userscripts and bookmarklets",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
     ".": "./lib/index.js",
     "./userscript": "./lib/userscript.js",
-    "./local-storage": "./lib/local-storage.js"
+    "./userscript-string": "./lib/userscript-string.js",
+    "./local-storage": "./lib/local-storage.js",
+    "./test": "./lib/test.js"
   },
   "scripts": {
     "p": "prettier --write .",
-    "lint": "prettier --write . && xo --fix",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "lint": "prettier --write . && xo --fix && tsc --noemit",
+    "lint:type": "tsc --noemit",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:ui": "vitest --ui --coverage.enabled=true",
+    "test:coverage": "vitest --coverage"
   },
   "repository": {
     "type": "git",
@@ -30,12 +36,16 @@
   },
   "homepage": "https://github.com/utags/browser-extension-storage#readme",
   "dependencies": {
-    "@plasmohq/storage": "^1.3.1"
+    "@plasmohq/storage": "^1.15.0"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.32",
+    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/ui": "^4.0.16",
+    "happy-dom": "^20.0.11",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3",
+    "vitest": "^4.0.16",
     "xo": "^1.2.3"
   },
   "files": [
@@ -45,27 +55,5 @@
   ],
   "engines": {
     "node": "^18.0.0 || ^20.0.0 || >=22.0.0"
-  },
-  "xoxx": {
-    "space": 2,
-    "prettier": true,
-    "globals": [
-      "GM",
-      "GM_getValue",
-      "GM_setValue",
-      "GM_deleteValue",
-      "GM_listValues",
-      "GM_addValueChangeListener",
-      "GM_removeValueChangeListener",
-      "localStorage",
-      "document"
-    ],
-    "rules": {
-      "camelcase": 0,
-      "new-cap": 0,
-      "no-global-assign": 0,
-      "prefer-destructuring": 0,
-      "capitalized-comments": 0
-    }
   }
 }
