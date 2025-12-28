@@ -55,6 +55,18 @@ function expect(actual: any) {
   }
 }
 
+const TEST_KEYS = [
+  'test-key',
+  'obj-key',
+  'num-key',
+  'bool-key',
+  'bool-key-false',
+  'null-key',
+  'arr-key',
+  'del-key',
+  'watch-key',
+]
+
 export async function runStorageTests(
   storage: StorageAdapter,
   logger: (msg: string) => void = console.log
@@ -74,7 +86,20 @@ export async function runStorageTests(
     }
   }
 
+  const cleanup = async () => {
+    logger('🧹 Cleaning up test data...')
+    for (const key of TEST_KEYS) {
+      try {
+        await storage.deleteValue(key)
+      } catch (error) {
+        logger(`⚠️ Failed to cleanup key "${key}": ${error}`)
+      }
+    }
+  }
+
   logger('🚀 Starting Storage Tests...')
+
+  await cleanup()
 
   await runTest('should set and get a string value', async () => {
     await storage.setValue('test-key', 'test-value')
@@ -161,6 +186,8 @@ export async function runStorageTests(
     expect(receivedKey).toBe('watch-key')
     expect(receivedNew).toBe('new-val')
   })
+
+  await cleanup()
 
   logger(`\n🏁 Tests completed: ${passedCount} passed, ${failedCount} failed.`)
   return failedCount === 0
