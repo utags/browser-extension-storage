@@ -20,7 +20,7 @@ const lastKnownValues = new Map<string, unknown>()
 let pollingIntervalId: any = null
 
 function startPolling() {
-  if (pollingIntervalId || isNativeListenerSupported) return
+  if (pollingIntervalId || isNativeListenerSupported()) return
   pollingIntervalId = setInterval(async () => {
     const keys = new Set(
       Array.from(valueChangeListeners.values()).map((l) => l.key)
@@ -54,7 +54,7 @@ export const scriptHandler = getScriptHandler().toLowerCase()
 const isIgnoredHandler =
   scriptHandler === 'tamp' || scriptHandler.includes('stay')
 
-const isNativeListenerSupported =
+const isNativeListenerSupported = () =>
   !isIgnoredHandler &&
   typeof GM !== 'undefined' &&
   typeof GM.addValueChangeListener === 'function'
@@ -96,13 +96,13 @@ async function updateValue(
   updater: () => void | Promise<void>
 ) {
   let oldValue: unknown
-  if (!isNativeListenerSupported) {
+  if (!isNativeListenerSupported()) {
     oldValue = await getValue(key)
   }
 
   await updater()
 
-  if (!isNativeListenerSupported) {
+  if (!isNativeListenerSupported()) {
     if (deepEqual(oldValue, newValue)) {
       return
     }
@@ -140,7 +140,7 @@ export async function addValueChangeListener(
   ) => void
 ): Promise<number> {
   if (
-    isNativeListenerSupported &&
+    isNativeListenerSupported() &&
     typeof GM !== 'undefined' &&
     typeof GM.addValueChangeListener === 'function'
   ) {
@@ -162,7 +162,7 @@ export async function addValueChangeListener(
 
 export async function removeValueChangeListener(id: number): Promise<void> {
   if (
-    isNativeListenerSupported &&
+    isNativeListenerSupported() &&
     typeof GM !== 'undefined' &&
     typeof GM.removeValueChangeListener === 'function'
   ) {

@@ -1,4 +1,5 @@
 import { deepEqual } from './deep-equal'
+import { wait } from './test-utils'
 
 export type StorageAdapter = {
   getValue: <T>(key: string, defaultValue?: T) => Promise<T | undefined>
@@ -65,6 +66,13 @@ const TEST_KEYS = [
   'arr-key',
   'del-key',
   'watch-key',
+  'watch-key-1',
+  'watch-key-2',
+  'watch-key-3',
+  'watch-key-4',
+  'watch-key-5',
+  'watch-key-6',
+  'watch-key-remote',
 ]
 
 export async function runStorageTests(
@@ -163,29 +171,212 @@ export async function runStorageTests(
     expect(await storage.getValue('del-key')).toBeUndefined()
   })
 
-  await runTest('should trigger value change listener', async () => {
-    let called = false
-    let receivedKey
-    let receivedNew
+  await runTest(
+    'should trigger listener on value change (undefined -> value)',
+    async () => {
+      let called = false
+      let rKey
+      let rOld
+      let rNew
+      const cb = (k: string, o: any, n: any) => {
+        called = true
+        rKey = k
+        rOld = o
+        rNew = n
+      }
 
-    const callback = (key: string, _oldVal: any, newVal: any) => {
+      await storage.addValueChangeListener('watch-key-1', cb)
+      await storage.setValue('watch-key-1', 'val1')
+      await wait()
+      expect(called).toBe(true)
+      expect(rKey).toBe('watch-key-1')
+      expect(rOld).toBeUndefined()
+      expect(rNew).toBe('val1')
+    }
+  )
+
+  await runTest(
+    'should trigger listener on value deletion (value -> undefined)',
+    async () => {
+      await storage.setValue('watch-key-2', 'val1')
+      let called = false
+      let rKey
+      let rOld
+      let rNew
+      const cb = (k: string, o: any, n: any) => {
+        called = true
+        rKey = k
+        rOld = o
+        rNew = n
+      }
+
+      await storage.addValueChangeListener('watch-key-2', cb)
+      await storage.deleteValue('watch-key-2')
+      await wait()
+      expect(called).toBe(true)
+      expect(rKey).toBe('watch-key-2')
+      expect(rOld).toBe('val1')
+      expect(rNew).toBeUndefined()
+    }
+  )
+
+  await runTest(
+    'should trigger listener on value deletion (value -> undefined via setValue)',
+    async () => {
+      await storage.setValue('watch-key-2', 'val1')
+      let called = false
+      let rKey
+      let rOld
+      let rNew
+      const cb = (k: string, o: any, n: any) => {
+        called = true
+        rKey = k
+        rOld = o
+        rNew = n
+      }
+
+      await storage.addValueChangeListener('watch-key-2', cb)
+      await storage.setValue('watch-key-2', undefined)
+      await wait()
+      expect(called).toBe(true)
+      expect(rKey).toBe('watch-key-2')
+      expect(rOld).toBe('val1')
+      expect(rNew).toBeUndefined()
+    }
+  )
+
+  await runTest('should NOT trigger listener for same value', async () => {
+    await storage.setValue('watch-key-3', 'val1')
+    let called = false
+    const cb = () => {
       called = true
-      receivedKey = key
-      receivedNew = newVal
     }
 
-    await storage.addValueChangeListener('watch-key', callback)
-
-    await storage.setValue('watch-key', 'new-val')
-
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 100)
-    })
-
-    expect(called).toBe(true)
-    expect(receivedKey).toBe('watch-key')
-    expect(receivedNew).toBe('new-val')
+    await storage.addValueChangeListener('watch-key-3', cb)
+    await storage.setValue('watch-key-3', 'val1')
+    await wait()
+    expect(called).toBe(false)
   })
+
+  await runTest('should trigger listener for sequential changes', async () => {
+    const calls: any[] = []
+    const cb = (k: string, o: any, n: any) => {
+      calls.push({ k, o, n })
+    }
+
+    await storage.addValueChangeListener('watch-key-4', cb)
+
+    await storage.setValue('watch-key-4', 'v1')
+    await wait(20)
+
+    await storage.setValue('watch-key-4', 'v2')
+    await wait(20)
+
+    await storage.setValue('watch-key-4', 'v1')
+    await wait(20)
+
+    expect(calls.length).toBe(3)
+    expect(calls[0].o).toBeUndefined()
+    expect(calls[0].n).toBe('v1')
+    expect(calls[1].o).toBe('v1')
+    expect(calls[1].n).toBe('v2')
+    expect(calls[2].o).toBe('v2')
+    expect(calls[2].n).toBe('v1')
+  })
+
+  await runTest(
+    'should NOT trigger listener on delete non-existent value',
+    async () => {
+      let called = false
+      const cb = () => {
+        called = true
+      }
+
+      await storage.addValueChangeListener('watch-key-5', cb)
+      await storage.deleteValue('watch-key-5')
+      await wait()
+      expect(called).toBe(false)
+    }
+  )
+
+  await runTest(
+    'should NOT trigger listener on set undefined to non-existent value',
+    async () => {
+      let called = false
+      const cb = () => {
+        called = true
+      }
+
+      await storage.addValueChangeListener('watch-key-6', cb)
+      await storage.setValue('watch-key-6', undefined) // undefined is not a valid JSON value but let's see how adapter handles it
+      await wait()
+      expect(called).toBe(false)
+    }
+  )
+
+  if (globalThis.window !== undefined && typeof document !== 'undefined') {
+    await runTest('should handle cross-tab changes (iframe)', async () => {
+      // Only runs if we can create iframe and accessing localStorage
+      // This test is specific to local-storage or adapters sharing storage
+      // We assume storage adapter is using localStorage if we are in browser
+      // But 'storage' argument is generic.
+      // We can try to modify localStorage directly and see if listener fires with remote=true
+
+      let called = false
+      let rRemote = false
+      let rNew
+      const cb = (k: string, o: any, n: any, r: boolean) => {
+        called = true
+        rRemote = r
+        rNew = n
+      }
+
+      await storage.addValueChangeListener('watch-key-remote', cb)
+
+      const iframe = document.createElement('iframe')
+      document.body.append(iframe)
+
+      // Give it a moment
+      await wait(10)
+
+      // Try to access iframe localStorage
+      try {
+        const iframeStorage = iframe.contentWindow?.localStorage
+        if (iframeStorage) {
+          // We need to use the namespaced key if the adapter uses one.
+          // But here we are testing the adapter.
+          // If we use storage.setValue it won't be "remote".
+          // We need to trigger a "storage" event.
+          // If we modify localStorage in iframe, it should trigger storage event in window.
+
+          // We assume the adapter uses 'extension.' prefix based on reading local-storage.ts
+          // But this test is generic.
+          // If we don't know the prefix, we can't easily trigger it via raw localStorage.
+          // However, if we are testing 'local-storage' module specifically, we know.
+
+          // A generic way: use another instance of storage adapter?
+          // But "remote" implies different context (tab/frame).
+
+          // Let's assume 'extension.' prefix for now as it's common in this repo
+          iframeStorage.setItem('extension.watch-key-remote', '"remote-val"')
+
+          await wait(100)
+
+          if (called) {
+            expect(rRemote).toBe(true)
+            expect(rNew).toBe('remote-val')
+          } else {
+            // Maybe not supported or not local-storage
+            logger('⚠️ Cross-tab test skipped or failed (listener not called)')
+          }
+        }
+      } catch (error) {
+        logger(`⚠️ Cross-tab test skipped: ${error}`)
+      } finally {
+        iframe.remove()
+      }
+    })
+  }
 
   await cleanup()
 

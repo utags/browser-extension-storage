@@ -42,6 +42,29 @@ const _addValueChangeListener = async (
   return 0
 }
 
+if (globalThis.window !== undefined) {
+  globalThis.addEventListener('storage', (event) => {
+    if (
+      event.storageArea === localStorage &&
+      event.key &&
+      event.key.startsWith(prefix)
+    ) {
+      const key = event.key
+      const listenersList = listeners[key]
+      if (listenersList) {
+        for (const func of listenersList) {
+          func(
+            getUnnamespacedKey(key),
+            event.oldValue === null ? undefined : event.oldValue,
+            event.newValue === null ? undefined : event.newValue,
+            true
+          )
+        }
+      }
+    }
+  })
+}
+
 const getValue = async <T = string>(
   key: string,
   defaultValue?: T
