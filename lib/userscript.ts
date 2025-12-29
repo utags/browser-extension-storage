@@ -1,5 +1,7 @@
 import { deepEqual } from './deep-equal'
 
+export { runStorageTests } from './test.js'
+
 const valueChangeListeners = new Map<
   number,
   {
