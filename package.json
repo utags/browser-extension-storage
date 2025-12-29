@@ -1,6 +1,6 @@
 {
   "name": "browser-extension-storage",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Storage API wrapper for browser extensions, userscripts and bookmarklets",
   "type": "module",
   "main": "./dist/index.js",
@@ -16,6 +16,7 @@
     "build": "rm -rf dist *.tsbuildinfo && tsc -p tsconfig.build.json",
     "prepublishOnly": "pnpm run build",
     "p": "prettier --write .",
+    "xo": "xo",
     "lint": "prettier --write . && xo --fix && tsc --noemit",
     "lint:type": "tsc --noemit",
     "test": "vitest run",

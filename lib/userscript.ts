@@ -84,7 +84,11 @@ export async function getValue<T = string>(
   defaultValue?: T
 ): Promise<T | undefined> {
   if (typeof GM !== 'undefined' && typeof GM.getValue === 'function') {
-    return GM.getValue<T>(key, defaultValue as T)
+    try {
+      return await GM.getValue<T>(key, defaultValue as T)
+    } catch (error) {
+      console.warn('GM.getValue failed', error)
+    }
   }
 
   return defaultValue
@@ -116,8 +120,14 @@ async function updateValue(
 
 export async function setValue(key: string, value: unknown): Promise<void> {
   await updateValue(key, value, async () => {
-    if (typeof GM !== 'undefined' && typeof GM.setValue === 'function') {
-      await GM.setValue(key, value)
+    if (typeof GM !== 'undefined') {
+      if (value === undefined) {
+        if (typeof GM.deleteValue === 'function') {
+          await GM.deleteValue(key)
+        }
+      } else if (typeof GM.setValue === 'function') {
+        await GM.setValue(key, value)
+      }
     }
   })
 }
