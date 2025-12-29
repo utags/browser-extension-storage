@@ -21,3 +21,4 @@ out/
 build/
 dist/
 tsconfig.tsbuildinfo
+tsconfig.build.tsbuildinfo

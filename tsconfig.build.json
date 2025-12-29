@@ -1,11 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.test.ts",
+    "test",
+    "**/*.spec.ts"
   ],
   "include": [
-    "./**/*.ts",
-    "./**/*.d.ts"
+    "lib"
   ],
   "compilerOptions": {
     "strict": false,
@@ -18,8 +20,7 @@
     ],
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "incremental": true,
+    "noEmit": false,
     "esModuleInterop": true,
     "module": "esnext",
     "resolveJsonModule": true,
@@ -33,6 +34,8 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "verbatimModuleSyntax": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "outDir": "dist",
+    "rootDir": "lib"
   }
 }

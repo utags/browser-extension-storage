@@ -1,17 +1,20 @@
 {
   "name": "browser-extension-storage",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Storage API wrapper for browser extensions, userscripts and bookmarklets",
   "type": "module",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./lib/index.js",
-    "./userscript": "./lib/userscript.js",
-    "./userscript-string": "./lib/userscript-string.js",
-    "./local-storage": "./lib/local-storage.js",
-    "./test": "./lib/test.js"
+    ".": "./dist/index.js",
+    "./userscript": "./dist/userscript.js",
+    "./userscript-string": "./dist/userscript-string.js",
+    "./local-storage": "./dist/local-storage.js",
+    "./test": "./dist/test.js"
   },
   "scripts": {
+    "build": "rm -rf dist *.tsbuildinfo && tsc -p tsconfig.build.json",
+    "prepublishOnly": "pnpm run build",
     "p": "prettier --write .",
     "lint": "prettier --write . && xo --fix && tsc --noemit",
     "lint:type": "tsc --noemit",
@@ -49,7 +52,7 @@
     "xo": "^1.2.3"
   },
   "files": [
-    "lib/",
+    "dist/",
     "LICENSE",
     "README.md"
   ],
