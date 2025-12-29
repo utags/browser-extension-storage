@@ -121,7 +121,9 @@ async function updateValue(
 export async function setValue(key: string, value: unknown): Promise<void> {
   await updateValue(key, value, async () => {
     if (typeof GM !== 'undefined') {
-      if (value === undefined) {
+      // Stay (Safari, Chrome): GM.setValue does not support saving undefined and null values.
+      // Reading will error...
+      if (value === undefined || value === null) {
         if (typeof GM.deleteValue === 'function') {
           await GM.deleteValue(key)
         }

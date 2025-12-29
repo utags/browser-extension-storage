@@ -151,11 +151,15 @@ export async function runStorageTests(
     expect(valueFalse).toBe(false)
   })
 
-  await runTest('should set and get a null value', async () => {
-    await storage.setValue('null-key', null)
-    const value = await storage.getValue('null-key')
-    expect(value).toBeNull()
-  })
+  await runTest(
+    'should delete value when setting null (treat null as undefined)',
+    async () => {
+      await storage.setValue('null-key', 'initial-value')
+      await storage.setValue('null-key', null)
+      const value = await storage.getValue('null-key')
+      expect(value).toBeUndefined()
+    }
+  )
 
   await runTest('should set and get an array value', async () => {
     const arr = [1, 'two', { three: 3 }, null]

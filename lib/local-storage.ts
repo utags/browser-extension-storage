@@ -74,9 +74,11 @@ const getValue = async <T = string>(
 }
 
 const setValue = async (key: string, value: any): Promise<void> => {
+  // Stay (Safari, Chrome): GM.setValue does not support saving undefined and null values.
+  // Reading will error...
   _setValue(
     getNamespacedKey(key),
-    value === undefined ? undefined : JSON.stringify(value)
+    value === undefined || value === null ? undefined : JSON.stringify(value)
   )
 }
 

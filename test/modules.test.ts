@@ -165,10 +165,11 @@ describe('Storage Modules Consistency', () => {
       expect(valueFalse).toBe(false)
     })
 
-    it('should set and get a null value', async () => {
+    it('should delete value when setting null (treat null as undefined)', async () => {
+      await mod.setValue('null-key', 'initial-value')
       await mod.setValue('null-key', null)
       const value = await mod.getValue('null-key')
-      expect(value).toBeNull()
+      expect(value).toBeUndefined()
     })
 
     it('should set and get an array value', async () => {

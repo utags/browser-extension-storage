@@ -19,7 +19,12 @@ export async function setValue<T = string>(
   key: string,
   value: T
 ): Promise<void> {
-  await setRawValue(key, JSON.stringify(value))
+  // Stay (Safari, Chrome): GM.setValue does not support saving undefined and null values.
+  // Reading will error...
+  await setRawValue(
+    key,
+    value === undefined || value === null ? undefined : JSON.stringify(value)
+  )
 }
 
 export async function addValueChangeListener(

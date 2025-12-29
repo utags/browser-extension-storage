@@ -13,7 +13,11 @@ const getValue = async <T = string>(
 }
 
 const setValue = async (key: string, value: any): Promise<void> => {
-  await storage.set(key, value)
+  // Stay (Safari, Chrome): GM.setValue does not support saving undefined and null values.
+  // Reading will error...
+  await (value === undefined || value === null
+    ? deleteValue(key)
+    : storage.set(key, value))
 }
 
 const deleteValue = async (key: string): Promise<void> => storage.remove(key)
