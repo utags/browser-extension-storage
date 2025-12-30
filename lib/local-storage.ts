@@ -125,4 +125,8 @@ export const removeValueChangeListener = async (id: number): Promise<void> => {
   listeners.delete(id)
 }
 
+export function setPolling(enabled: boolean) {
+  // Do nothing
+}
+
 export { getValue, setValue, deleteValue, addValueChangeListener }
