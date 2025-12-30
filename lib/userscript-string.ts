@@ -5,7 +5,11 @@ import {
 } from './userscript.js'
 import { safeJsonParse, safeJsonParseWithFallback } from './json-utils'
 
-export { deleteValue } from './userscript.js'
+export {
+  deleteValue,
+  setPolling,
+  removeValueChangeListener,
+} from './userscript.js'
 export { runStorageTests } from './test.js'
 
 export async function getValue<T = string>(

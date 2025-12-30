@@ -2,6 +2,7 @@ import { vi } from 'vitest'
 
 export const mockStorageData = new Map<string, any>()
 export const mockListeners = new Set<(...args: any[]) => void>()
+const watchMap = new Map<any, any>()
 
 export const triggerListeners = (
   key: string,
@@ -37,9 +38,14 @@ export const mockChromeStorage = {
       }
     }
 
+    watchMap.set(callbackMap, listener)
     mockListeners.add(listener)
   }),
-  unwatch: vi.fn(() => {
-    // Simplification for mock
+  unwatch: vi.fn((callbackMap) => {
+    const listener = watchMap.get(callbackMap)
+    if (listener) {
+      mockListeners.delete(listener)
+      watchMap.delete(callbackMap)
+    }
   }),
 }

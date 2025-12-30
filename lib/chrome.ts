@@ -4,6 +4,9 @@ const isChrome = typeof chrome !== 'undefined' && typeof browser === 'undefined'
 
 const storage = new Storage({ area: 'local' })
 
+const listeners = new Map<number, any>()
+let listenerIdCounter = 0
+
 const getValue = async <T = string>(
   key: string,
   defaultValue?: T
@@ -42,7 +45,23 @@ const addValueChangeListener = async (
     },
   }
   storage.watch(callbackMap)
-  return 0
+  const id = ++listenerIdCounter
+  listeners.set(id, callbackMap)
+  return id
 }
 
-export { getValue, setValue, deleteValue, addValueChangeListener }
+const removeValueChangeListener = async (id: number): Promise<void> => {
+  const callbackMap = listeners.get(id)
+  if (callbackMap) {
+    storage.unwatch(callbackMap)
+    listeners.delete(id)
+  }
+}
+
+export {
+  getValue,
+  setValue,
+  deleteValue,
+  addValueChangeListener,
+  removeValueChangeListener,
+}

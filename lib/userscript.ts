@@ -20,9 +20,23 @@ const valueChangeBroadcastChannel = new BroadcastChannel(
 )
 const lastKnownValues = new Map<string, unknown>()
 let pollingIntervalId: any = null
+let pollingEnabled = false
+
+export function setPolling(enabled: boolean) {
+  pollingEnabled = enabled
+  if (!enabled) {
+    if (pollingIntervalId) {
+      clearInterval(pollingIntervalId)
+      pollingIntervalId = null
+    }
+  } else if (valueChangeListeners.size > 0) {
+    startPolling()
+  }
+}
 
 function startPolling() {
-  if (pollingIntervalId || isNativeListenerSupported()) return
+  if (pollingIntervalId || isNativeListenerSupported() || !pollingEnabled)
+    return
   pollingIntervalId = setInterval(async () => {
     const keys = new Set(
       Array.from(valueChangeListeners.values()).map((l) => l.key)

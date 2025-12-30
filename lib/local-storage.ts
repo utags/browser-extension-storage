@@ -1,9 +1,18 @@
 import { safeJsonParse, safeJsonParseWithFallback } from './json-utils'
 
-const listeners: Record<
-  string,
-  Array<(key: string, oldValue: any, newValue: any, remote: boolean) => void>
-> = {}
+const listeners = new Map<
+  number,
+  {
+    key: string
+    callback: (
+      key: string,
+      oldValue: any,
+      newValue: any,
+      remote: boolean
+    ) => void
+  }
+>()
+let listenerIdCounter = 0
 
 const prefix = 'extension.'
 
@@ -26,9 +35,9 @@ const _setValue = (key: string, value: string | undefined) => {
     localStorage.setItem(key, value)
   }
 
-  if (listeners[key]) {
-    for (const func of listeners[key]) {
-      func(getUnnamespacedKey(key), oldValue, value, false)
+  for (const listener of listeners.values()) {
+    if (listener.key === key) {
+      listener.callback(getUnnamespacedKey(key), oldValue, value, false)
     }
   }
 }
@@ -37,9 +46,9 @@ const _addValueChangeListener = async (
   key: string,
   func: (key: string, oldValue: any, newValue: any, remote: boolean) => void
 ): Promise<number> => {
-  listeners[key] = listeners[key] || []
-  listeners[key].push(func)
-  return 0
+  const id = ++listenerIdCounter
+  listeners.set(id, { key, callback: func })
+  return id
 }
 
 if (globalThis.window !== undefined) {
@@ -50,10 +59,9 @@ if (globalThis.window !== undefined) {
       event.key.startsWith(prefix)
     ) {
       const key = event.key
-      const listenersList = listeners[key]
-      if (listenersList) {
-        for (const func of listenersList) {
-          func(
+      for (const listener of listeners.values()) {
+        if (listener.key === key) {
+          listener.callback(
             getUnnamespacedKey(key),
             event.oldValue === null ? undefined : event.oldValue,
             event.newValue === null ? undefined : event.newValue,
@@ -112,5 +120,9 @@ const addValueChangeListener = async (
       func(k, parsedOld, parsedNew, remote)
     }
   )
+
+export const removeValueChangeListener = async (id: number): Promise<void> => {
+  listeners.delete(id)
+}
 
 export { getValue, setValue, deleteValue, addValueChangeListener }
