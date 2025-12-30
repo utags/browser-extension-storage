@@ -95,6 +95,7 @@ export async function runStorageTests(
   if (globalThis.top !== globalThis.self) {
     return false
   }
+
   const stats = { passed: 0, failed: 0 }
   const activeListeners = new Set<number>()
 
@@ -194,6 +195,35 @@ export async function runStorageTests(
         await storage.setValue('obj-key', obj)
         const value = await storage.getValue('obj-key')
         assert(value).toEqual(obj)
+      },
+    },
+    {
+      name: 'should return a deep copy of the object (immutability check)',
+      async fn() {
+        const obj = { foo: 'bar', nested: { a: 1 } }
+        await storage.setValue('obj-copy-key', obj)
+
+        const value1 = await storage.getValue<{
+          foo: string
+          nested: { a: number }
+        }>('obj-copy-key')
+        assert(value1).toEqual(obj)
+
+        // Modify the returned object
+        if (value1) {
+          value1.foo = 'modified'
+          value1.nested.a = 999
+        }
+
+        const value2 = await storage.getValue<{
+          foo: string
+          nested: { a: number }
+        }>('obj-copy-key')
+
+        // The second get should return the original value, not the modified one
+        assert(value2).toEqual(obj)
+        assert(value2?.foo).toBe('bar')
+        assert(value2?.nested.a).toBe(1)
       },
     },
     {

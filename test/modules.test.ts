@@ -70,16 +70,21 @@ describe('Storage Modules Consistency', () => {
     }
 
     ;(globalThis as any).GM = {
-      getValue: vi.fn(async (key, def) =>
-        gmStore.has(key) ? gmStore.get(key) : def
-      ),
+      getValue: vi.fn(async (key, def) => {
+        const val = gmStore.has(key) ? gmStore.get(key) : def
+        // eslint-disable-next-line unicorn/prefer-structured-clone
+        return val ? JSON.parse(JSON.stringify(val)) : val
+      }),
       setValue: vi.fn(async (key, val) => {
         const old = gmStore.get(key)
-        if (old === val) return
-        gmStore.set(key, val)
+        const storedVal =
+          // eslint-disable-next-line unicorn/prefer-structured-clone
+          val === undefined ? undefined : JSON.parse(JSON.stringify(val))
+        if (JSON.stringify(old) === JSON.stringify(storedVal)) return
+        gmStore.set(key, storedVal)
         // Trigger listeners
         for (const [id, cb] of gmListeners) {
-          cb(key, old, val, false)
+          cb(key, old, storedVal, false)
         }
       }),
       deleteValue: vi.fn(async (key) => {

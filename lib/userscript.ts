@@ -70,6 +70,14 @@ export const scriptHandler = getScriptHandler().toLowerCase()
 const isIgnoredHandler =
   scriptHandler === 'tamp' || scriptHandler.includes('stay')
 
+const shouldCloneValue = () =>
+  // Stay (Safari)
+  scriptHandler === 'tamp' ||
+  // ScriptCat support addValueChangeListener, don't need to clone
+  // scriptHandler === 'scriptcat' ||
+  // Stay (Chrome)
+  scriptHandler.includes('stay')
+
 const isNativeListenerSupported = () =>
   !isIgnoredHandler &&
   typeof GM !== 'undefined' &&
@@ -91,8 +99,17 @@ function triggerValueChangeListeners(
 
 valueChangeBroadcastChannel.addEventListener('message', (event) => {
   const { key, oldValue, newValue } = event.data
-  lastKnownValues.set(key, newValue)
-  triggerValueChangeListeners(key, oldValue, newValue, true)
+
+  if (shouldCloneValue()) {
+    // For Stay, we need to force update the value to ensure freshness.
+    // They cannot read deep copies and don't support addValueChangeListener.
+    // Even if we get a notification from another context, GM.getValue might return stale data.
+    // Calling setValue forces the storage to update and triggers internal listeners via updateValue -> triggerValueChangeListeners.
+    void setValue(key, newValue)
+  } else {
+    lastKnownValues.set(key, newValue)
+    triggerValueChangeListeners(key, oldValue, newValue, true)
+  }
 })
 
 export async function getValue<T = string>(
@@ -101,7 +118,13 @@ export async function getValue<T = string>(
 ): Promise<T | undefined> {
   if (typeof GM !== 'undefined' && typeof GM.getValue === 'function') {
     try {
-      return await GM.getValue<T>(key, defaultValue as T)
+      const value = await GM.getValue<T>(key, defaultValue as T)
+      if (value && typeof value === 'object' && shouldCloneValue()) {
+        // eslint-disable-next-line unicorn/prefer-structured-clone
+        return JSON.parse(JSON.stringify(value))
+      }
+
+      return value
     } catch (error) {
       console.warn('GM.getValue failed', error)
     }

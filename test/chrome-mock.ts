@@ -18,12 +18,16 @@ export const triggerListeners = (
 export const mockChromeStorage = {
   get: vi.fn(async (key) => {
     const val = mockStorageData.get(key)
-    return val
+    // eslint-disable-next-line unicorn/prefer-structured-clone
+    return val ? JSON.parse(JSON.stringify(val)) : val
   }),
   set: vi.fn(async (key, value) => {
     const oldValue = mockStorageData.get(key)
-    mockStorageData.set(key, value)
-    triggerListeners(key, oldValue, value, 'chrome')
+    const storedValue =
+      // eslint-disable-next-line unicorn/prefer-structured-clone
+      value === undefined ? undefined : JSON.parse(JSON.stringify(value))
+    mockStorageData.set(key, storedValue)
+    triggerListeners(key, oldValue, storedValue, 'chrome')
   }),
   remove: vi.fn(async (key) => {
     const oldValue = mockStorageData.get(key)
